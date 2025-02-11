@@ -41,7 +41,21 @@ impl Parser {
     ///  * `ins` - input source
     ///
     pub fn read_items<B: BufRead>(ins: B) -> Vec<Item> {
-        Vec::new()
+        ins.lines()
+            .flatten()
+            .map(|line| {
+                line.splitn(2, ' ')
+                    .map(|token| token.trim().to_owned())
+                    .collect::<Vec<_>>()
+            })
+            .map(|tokens| {
+                let id = tokens[0].parse::<u64>().unwrap_or(0);
+                let name = tokens[1].to_owned();
+
+                (id, name)
+            })
+            .map(|(id, name)| Item::new(id, name))
+            .collect()
     }
 
     /// Read inventories from an input buffer.
